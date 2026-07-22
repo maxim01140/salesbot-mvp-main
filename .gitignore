@@ -139,3 +139,6 @@ build/
 .DS_Store
 Thumbs.db
 .cache/
+
+
+docs
