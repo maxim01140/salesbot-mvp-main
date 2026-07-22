@@ -11,7 +11,7 @@
 Выполните эту команду на сервере:
 
 ```bash
-curl "https://api.telegram.org/bot7606566977:AAHr2m1T1-7xzEIY5e7jm0PeKl4E5W75roI/getUpdates"
+curl "https://api.telegram.org/bot7606566977:/getUpdates"
 ```
 
 ### Шаг 3: Найти Chat ID в ответе
