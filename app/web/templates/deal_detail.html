@@ -1,0 +1,1866 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lead_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #4299e1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .header h1 {
+        font-size: 28px;
+        margin-bottom: 15px;
+        color: white;
+    }
+
+    .header-meta {
+        display: flex;
+        gap: 30px;
+        font-size: 14px;
+        opacity: 0.95;
+        flex-wrap: wrap;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #667eea;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        color: #718096;
+        font-size: 14px;
+    }
+
+    .section {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .section h2 {
+        font-size: 22px;
+        margin-bottom: 20px;
+        color: #1a202c;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+    }
+
+    .section h3 {
+        font-size: 18px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        color: #2d3748;
+    }
+
+    /* Professional Analysis Styles */
+    .deal-status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .status-new { background: #bee3f8; color: #2c5282; }
+    .status-hot { background: #fed7d7; color: #742a2a; }
+    .status-cold { background: #e2e8f0; color: #2d3748; }
+    .status-risk { background: #fc8181; color: #fff; }
+    .status-ready { background: #c6f6d5; color: #22543d; }
+    .status-active { background: #feebc8; color: #7c2d12; }
+
+    .health-score {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    .health-bar {
+        flex: 1;
+        height: 30px;
+        background: #e2e8f0;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .health-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+        transition: width 0.5s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+
+    .health-fill.low { background: linear-gradient(90deg, #f56565 0%, #e53e3e 100%); }
+    .health-fill.medium { background: linear-gradient(90deg, #ed8936 0%, #dd6b20 100%); }
+
+    .summary-box {
+        background: #edf2f7;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+        line-height: 1.8;
+        font-size: 15px;
+    }
+
+    .manager-grade {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 24px;
+        margin: 10px 0;
+    }
+
+    .grade-A { background: #c6f6d5; color: #22543d; }
+    .grade-B { background: #bee3f8; color: #2c5282; }
+    .grade-C { background: #feebc8; color: #7c2d12; }
+    .grade-D { background: #fed7d7; color: #742a2a; }
+    .grade-F { background: #fc8181; color: #fff; }
+
+    .list-pros {
+        background: #f0fff4;
+        border-left: 4px solid #48bb78;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+
+    .list-cons {
+        background: #fffaf0;
+        border-left: 4px solid #ed8936;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+
+    .list-risks {
+        background: #fff5f5;
+        border-left: 4px solid #f56565;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+
+    .list-item {
+        margin: 10px 0;
+        padding-left: 25px;
+        position: relative;
+    }
+
+    .list-item:before {
+        content: "•";
+        position: absolute;
+        left: 10px;
+        font-weight: bold;
+    }
+
+    .action-card {
+        background: #ebf8ff;
+        border: 2px solid #4299e1;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+
+    .action-card h4 {
+        color: #2c5282;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .action-meta {
+        display: flex;
+        gap: 20px;
+        font-size: 14px;
+        color: #4a5568;
+        margin-top: 10px;
+    }
+
+    .script-box {
+        background: #f7fafc;
+        border: 2px dashed #cbd5e0;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+        font-family: 'Courier New', monospace;
+        line-height: 1.8;
+    }
+
+    .coaching-note {
+        background: linear-gradient(135deg, #fef5e7 0%, #fde4cf 100%);
+        border-left: 4px solid #f39c12;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-style: italic;
+    }
+
+    .trend-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .trend-up { background: #c6f6d5; color: #22543d; }
+    .trend-stable { background: #bee3f8; color: #2c5282; }
+    .trend-down { background: #fed7d7; color: #742a2a; }
+
+    .calls-timeline {
+        position: relative;
+        padding-left: 40px;
+        margin-top: 30px;
+    }
+
+    .calls-timeline:before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #cbd5e0;
+    }
+
+    .call-item {
+        position: relative;
+        background: #f7fafc;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #cbd5e0;
+    }
+
+    .call-item:before {
+        content: '';
+        position: absolute;
+        left: -34px;
+        top: 24px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #cbd5e0;
+        border: 3px solid white;
+    }
+
+    .call-item.quality-high {
+        border-left-color: #48bb78;
+    }
+
+    .call-item.quality-high:before {
+        background: #48bb78;
+    }
+
+    .call-item.quality-medium {
+        border-left-color: #ed8936;
+    }
+
+    .call-item.quality-medium:before {
+        background: #ed8936;
+    }
+
+    .call-item.quality-low {
+        border-left-color: #f56565;
+    }
+
+    .call-item.quality-low:before {
+        background: #f56565;
+    }
+
+    .call-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .call-date {
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .call-quality {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .quality-high {
+        background: #c6f6d5;
+        color: #22543d;
+    }
+
+    .quality-medium {
+        background: #feebc8;
+        color: #7c2d12;
+    }
+
+    .quality-low {
+        background: #fed7d7;
+        color: #742a2a;
+    }
+
+    .call-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 13px;
+        color: #718096;
+        flex-wrap: wrap;
+    }
+
+    .call-transcript {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #e2e8f0;
+        color: #4a5568;
+        line-height: 1.6;
+        font-size: 14px;
+    }
+
+    .expand-btn {
+        background: transparent;
+        border: 1px solid #cbd5e0;
+        color: #4a5568;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        margin-top: 10px;
+    }
+
+    .expand-btn:hover {
+        background: #edf2f7;
+    }
+
+    /* Chat Analysis Styles */
+    .btn-light {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .btn-light:hover {
+        background: rgba(255,255,255,0.3);
+    }
+    .btn-light:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e2e8f0;
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .chat-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    .chat-stat-card {
+        background: #f7fafc;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .chat-stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+    }
+    .chat-stat-label {
+        font-size: 12px;
+        color: #718096;
+        margin-top: 4px;
+    }
+
+    .chat-scores-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin: 20px 0;
+    }
+    .chat-score-item {
+        background: #f7fafc;
+        padding: 12px;
+        border-radius: 8px;
+    }
+    .chat-score-label {
+        font-size: 13px;
+        color: #4a5568;
+        margin-bottom: 6px;
+    }
+    .chat-score-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .chat-score-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+    .chat-score-fill.high { background: #48bb78; }
+    .chat-score-fill.medium { background: #ecc94b; }
+    .chat-score-fill.low { background: #f56565; }
+
+    .chat-sentiment {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    .sentiment-positive { background: #c6f6d5; color: #22543d; }
+    .sentiment-interested { background: #bee3f8; color: #2a4365; }
+    .sentiment-neutral { background: #e2e8f0; color: #4a5568; }
+    .sentiment-hesitant { background: #feebc8; color: #744210; }
+    .sentiment-negative { background: #fed7d7; color: #742a2a; }
+
+    .chat-readiness {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    .readiness-hot { background: #f56565; color: white; }
+    .readiness-warm { background: #ed8936; color: white; }
+    .readiness-cold { background: #4299e1; color: white; }
+
+    .next-action-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+    .next-action-box strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    .next-action-box p {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    /* Sentiment Dynamics Styles */
+    .sentiment-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .sentiment-card {
+        background: #f7fafc;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .sentiment-card.rapport {
+        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        border: 1px solid #667eea30;
+    }
+    .sentiment-emoji {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    .sentiment-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d3748;
+    }
+    .sentiment-label {
+        font-size: 12px;
+        color: #718096;
+        margin-top: 4px;
+    }
+
+    .emotion-timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+    .emotion-timeline-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: #718096;
+    }
+    .emotion-track {
+        height: 60px;
+        background: #f7fafc;
+        border-radius: 8px;
+        position: relative;
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    .emotion-track-label {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        font-weight: 600;
+        color: #4a5568;
+        z-index: 2;
+    }
+    .emotion-point {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        z-index: 1;
+    }
+    .emotion-point:hover {
+        transform: translate(-50%, -50%) scale(1.3);
+        z-index: 10;
+    }
+    .emotion-point.positive { background: #c6f6d5; }
+    .emotion-point.negative { background: #fed7d7; }
+    .emotion-point.neutral { background: #e2e8f0; }
+    .emotion-point.interested { background: #bee3f8; }
+    .emotion-point.hesitant { background: #feebc8; }
+    .emotion-point.excited { background: #faf089; }
+    .emotion-point.frustrated { background: #feb2b2; }
+    .emotion-point.trusting { background: #9ae6b4; }
+    .emotion-point.skeptical { background: #fbd38d; }
+
+    .emotion-shift {
+        background: #fff5f5;
+        border-left: 4px solid #fc8181;
+        padding: 12px 15px;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 10px;
+    }
+    .emotion-shift.positive-impact {
+        background: #f0fff4;
+        border-left-color: #68d391;
+    }
+    .emotion-shift-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+    .emotion-shift-arrow {
+        font-size: 18px;
+    }
+    .emotion-shift-trigger {
+        font-size: 13px;
+        color: #4a5568;
+    }
+    .emotion-shift-recommendation {
+        font-size: 12px;
+        color: #718096;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed #e2e8f0;
+    }
+
+    .peak-moment {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    .peak-moment.positive {
+        background: #f0fff4;
+        border-left: 3px solid #48bb78;
+    }
+    .peak-moment.negative {
+        background: #fff5f5;
+        border-left: 3px solid #f56565;
+    }
+    .peak-quote {
+        font-style: italic;
+        color: #4a5568;
+        margin-top: 8px;
+        font-size: 13px;
+    }
+
+    .emotional-insight {
+        display: flex;
+        gap: 8px;
+        padding: 10px 12px;
+        background: #f7fafc;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    .emotional-insight.win {
+        background: #f0fff4;
+    }
+    .emotional-insight.miss {
+        background: #fffaf0;
+    }
+
+    /* Task Suggestion Styles */
+    .task-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.2s;
+    }
+    .task-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .task-card.selected {
+        border-color: #667eea;
+        background: #f7fafc;
+    }
+    .task-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .task-emoji {
+        font-size: 28px;
+    }
+    .task-title {
+        flex: 1;
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+    }
+    .task-urgency {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .urgency-immediate { background: #fed7d7; color: #c53030; }
+    .urgency-soon { background: #feebc8; color: #c05621; }
+    .urgency-normal { background: #bee3f8; color: #2b6cb0; }
+    .urgency-low { background: #e2e8f0; color: #4a5568; }
+
+    .task-description {
+        color: #4a5568;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+    .task-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: #718096;
+    }
+    .task-reason {
+        font-style: italic;
+    }
+    .task-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .create-tasks-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 20px;
+    }
+    .create-tasks-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+    .create-tasks-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .task-success {
+        background: #f0fff4;
+        border: 1px solid #68d391;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+    .task-error {
+        background: #fff5f5;
+        border: 1px solid #fc8181;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+
+    /* Commitments Styles */
+    .commitments-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .commitment-stat {
+        background: #f7fafc;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .commitment-stat.health {
+        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        border: 1px solid #667eea30;
+    }
+    .commitment-stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2d3748;
+    }
+    .commitment-stat-value.overdue { color: #e53e3e; }
+    .commitment-stat-value.pending { color: #dd6b20; }
+    .commitment-stat-label {
+        font-size: 12px;
+        color: #718096;
+        margin-top: 4px;
+    }
+
+    .commitment-group {
+        margin-bottom: 25px;
+    }
+    .commitment-group-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .commitment-item {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    .commitment-item.overdue {
+        border-left: 4px solid #e53e3e;
+        background: #fff5f5;
+    }
+    .commitment-item.pending {
+        border-left: 4px solid #dd6b20;
+    }
+    .commitment-item.completed {
+        border-left: 4px solid #38a169;
+        background: #f0fff4;
+        opacity: 0.7;
+    }
+
+    .commitment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .commitment-type {
+        font-weight: 600;
+        color: #2d3748;
+    }
+    .commitment-status {
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .status-pending { background: #feebc8; color: #c05621; }
+    .status-overdue { background: #fed7d7; color: #c53030; }
+    .status-completed { background: #c6f6d5; color: #22543d; }
+
+    .commitment-description {
+        color: #4a5568;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    .commitment-quote {
+        font-style: italic;
+        color: #718096;
+        font-size: 13px;
+        padding: 8px 12px;
+        background: #f7fafc;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+    .commitment-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #718096;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <a href="/admin/" class="back-link">← Назад к списку менеджеров</a>
+
+    <div class="header">
+        <h1>📋 {{ lead_name }}</h1>
+        <div class="header-meta">
+            <span>👤 Менеджер: <strong>{{ manager_name }}</strong></span>
+            <span>📞 Всего звонков: <strong>{{ total_calls }}</strong></span>
+            <span>📝 Транскрибировано: <strong>{{ transcribed_calls }}</strong></span>
+            <span>🤖 Проанализировано: <strong>{{ analyzed_calls }}</strong></span>
+        </div>
+        <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-light" onclick="analyzeChatMessages()" id="chatAnalysisBtn">
+                💬 Анализ переписки
+            </button>
+            <button class="btn btn-light" onclick="analyzeSentimentDynamics()" id="sentimentBtn">
+                🎭 Динамика эмоций
+            </button>
+            <button class="btn btn-light" onclick="suggestTasks()" id="tasksBtn">
+                📋 Создать задачи
+            </button>
+            <button class="btn btn-light" onclick="loadCommitments()" id="commitmentsBtn">
+                🤝 Обязательства
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Analysis Section -->
+    <div id="chatAnalysisSection" class="section" style="display: none;">
+        <h2>💬 Анализ переписки</h2>
+        <div id="chatAnalysisContent">
+            <div style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p style="color: #718096; margin-top: 10px;">Загрузка и анализ сообщений...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentiment Dynamics Section -->
+    <div id="sentimentSection" class="section" style="display: none;">
+        <h2>🎭 Динамика эмоций</h2>
+        <div id="sentimentContent">
+            <div style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p style="color: #718096; margin-top: 10px;">Анализ эмоциональной динамики...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks Section -->
+    <div id="tasksSection" class="section" style="display: none;">
+        <h2>📋 Рекомендуемые задачи</h2>
+        <div id="tasksContent">
+            <div style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p style="color: #718096; margin-top: 10px;">Формирование задач из рекомендаций AI...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commitments Section -->
+    <div id="commitmentsSection" class="section" style="display: none;">
+        <h2>🤝 Обязательства</h2>
+        <div id="commitmentsContent">
+            <div style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p style="color: #718096; margin-top: 10px;">Анализ обязательств из звонков...</p>
+            </div>
+        </div>
+    </div>
+
+    {% if deal_analysis %}
+    <!-- ПРОФЕССИОНАЛЬНЫЙ АНАЛИЗ СДЕЛКИ -->
+    <div class="section">
+        <h2>🎯 Профессиональный анализ сделки</h2>
+
+        <div style="display: flex; gap: 20px; align-items: center; margin: 20px 0;">
+            <span class="deal-status-badge status-{{ deal_analysis.deal_status.replace(' ', '-').replace('/', '-').lower() }}">
+                {{ deal_analysis.deal_status.upper() }}
+            </span>
+
+            <span class="trend-indicator trend-{{ deal_analysis.deal_dynamics.trend }}">
+                {% if deal_analysis.deal_dynamics.trend == 'улучшается' %}📈{% elif deal_analysis.deal_dynamics.trend == 'ухудшается' %}📉{% else %}➡️{% endif %}
+                Тренд: {{ deal_analysis.deal_dynamics.trend }}
+            </span>
+        </div>
+
+        <div class="health-score">
+            <strong>Здоровье сделки:</strong>
+            <div class="health-bar">
+                <div class="health-fill {% if deal_analysis.deal_health_score < 40 %}low{% elif deal_analysis.deal_health_score < 70 %}medium{% endif %}"
+                     style="width: {{ deal_analysis.deal_health_score }}%">
+                    {{ deal_analysis.deal_health_score }}/100
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-box">
+            {{ deal_analysis.overall_summary }}
+        </div>
+
+        <h3>📊 Анализ клиента</h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 15px 0;">
+            <div style="background: #f7fafc; padding: 15px; border-radius: 8px;">
+                <strong>Уровень интереса:</strong> {{ deal_analysis.client_analysis.interest_level }}
+            </div>
+            <div style="background: #f7fafc; padding: 15px; border-radius: 8px;">
+                <strong>Этап принятия решения:</strong> {{ deal_analysis.client_analysis.decision_stage }}
+            </div>
+        </div>
+
+        {% if deal_analysis.client_analysis.buying_signals %}
+        <div class="list-pros">
+            <strong>✅ Сигналы готовности к покупке:</strong>
+            {% for signal in deal_analysis.client_analysis.buying_signals %}
+            <div class="list-item">{{ signal }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if deal_analysis.client_analysis.objections %}
+        <div class="list-cons">
+            <strong>⚠️ Главные возражения:</strong>
+            {% for objection in deal_analysis.client_analysis.objections %}
+            <div class="list-item">{{ objection }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if deal_analysis.client_analysis.red_flags %}
+        <div class="list-risks">
+            <strong>🚨 Тревожные сигналы:</strong>
+            {% for flag in deal_analysis.client_analysis.red_flags %}
+            <div class="list-item">{{ flag }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- АНАЛИЗ РАБОТЫ МЕНЕДЖЕРА -->
+    <div class="section">
+        <h2>👤 Анализ работы менеджера</h2>
+
+        <div style="display: flex; gap: 20px; align-items: center; margin: 20px 0;">
+            <div>
+                <strong>Оценка:</strong>
+                <span class="manager-grade grade-{{ deal_analysis.manager_performance.grade }}">
+                    {{ deal_analysis.manager_performance.grade }}
+                </span>
+            </div>
+            <div>
+                <strong>Уровень:</strong> {{ deal_analysis.manager_performance.skill_level }}
+            </div>
+        </div>
+
+        {% if deal_analysis.manager_performance.strengths %}
+        <div class="list-pros">
+            <strong>💪 Сильные стороны:</strong>
+            {% for strength in deal_analysis.manager_performance.strengths %}
+            <div class="list-item">{{ strength }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if deal_analysis.manager_performance.weaknesses %}
+        <div class="list-cons">
+            <strong>📈 Точки роста:</strong>
+            {% for weakness in deal_analysis.manager_performance.weaknesses %}
+            <div class="list-item">{{ weakness }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if deal_analysis.coaching_notes %}
+        <div class="coaching-note">
+            <strong>💡 Рекомендации коуча:</strong><br>
+            {{ deal_analysis.coaching_notes }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- СЛЕДУЮЩИЕ ШАГИ -->
+    <div class="section">
+        <h2>🎯 Рекомендации по следующим шагам</h2>
+
+        {% if deal_analysis.next_steps_recommendations.immediate_actions %}
+        <h3>⚡ Срочные действия</h3>
+        {% for action in deal_analysis.next_steps_recommendations.immediate_actions %}
+        <div class="action-card">
+            <h4>{{ action.action }}</h4>
+            <p><strong>Почему:</strong> {{ action.why }}</p>
+            <p><strong>Как:</strong> {{ action.how }}</p>
+            <div class="action-meta">
+                <span>📅 Срок: <strong>{{ action.deadline }}</strong></span>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if deal_analysis.next_steps_recommendations.conversation_script %}
+        <h3>📞 Сценарий следующего звонка</h3>
+        <div class="script-box">
+            {{ deal_analysis.next_steps_recommendations.conversation_script }}
+        </div>
+        {% endif %}
+
+        {% if deal_analysis.next_steps_recommendations.key_questions_to_ask %}
+        <h3>❓ Ключевые вопросы для следующего звонка</h3>
+        <div class="list-pros">
+            {% for question in deal_analysis.next_steps_recommendations.key_questions_to_ask %}
+            <div class="list-item">{{ question }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if deal_analysis.next_steps_recommendations.objection_handling %}
+        <h3>🛡️ Работа с возражениями</h3>
+        <div class="summary-box">
+            {{ deal_analysis.next_steps_recommendations.objection_handling }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- РИСКИ И СТРАТЕГИЯ -->
+    <div class="section">
+        <h2>⚠️ Риски и стратегия</h2>
+
+        <div style="background: {% if deal_analysis.risks.risk_level == 'высокий' %}#fff5f5{% elif deal_analysis.risks.risk_level == 'средний' %}#fffaf0{% else %}#f0fff4{% endif %}; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <strong>Уровень риска:</strong> <span style="text-transform: uppercase;">{{ deal_analysis.risks.risk_level }}</span>
+        </div>
+
+        {% if deal_analysis.risks.main_risks %}
+        <div class="list-risks">
+            <strong>🚨 Основные риски:</strong>
+            {% for risk in deal_analysis.risks.main_risks %}
+            <div class="list-item">{{ risk }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if deal_analysis.risks.mitigation_plan %}
+        <h3>🛡️ План снижения рисков</h3>
+        <div class="list-pros">
+            {% for action in deal_analysis.risks.mitigation_plan %}
+            <div class="list-item">{{ action }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if deal_analysis.strategic_recommendations %}
+        <h3>🎯 Стратегические рекомендации</h3>
+        {% for recommendation in deal_analysis.strategic_recommendations %}
+        <div class="summary-box" style="margin: 10px 0;">
+            {{ recommendation }}
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    {% else %}
+    <!-- NO ANALYSIS YET -->
+    <div class="section">
+        <h2>⏳ Анализ в процессе</h2>
+        <div class="summary-box">
+            <p>Анализ сделки будет доступен после обработки звонков.</p>
+            <p><strong>Обработано звонков:</strong> {{ transcribed_calls }} из {{ total_calls }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ИСТОРИЯ ЗВОНКОВ -->
+    <div class="section">
+        <h2>📞 История звонков</h2>
+
+        <div class="calls-timeline">
+            {% for call in calls %}
+            <div class="call-item {% if call.quality_score and call.quality_score >= 80 %}quality-high{% elif call.quality_score and call.quality_score >= 60 %}quality-medium{% else %}quality-low{% endif %}">
+                <div class="call-header">
+                    <div class="call-date">
+                        📅 {{ call.created_at.strftime('%d.%m.%Y %H:%M') }}
+                    </div>
+                    {% if call.quality_score %}
+                    <div class="call-quality {% if call.quality_score >= 80 %}quality-high{% elif call.quality_score >= 60 %}quality-medium{% else %}quality-low{% endif %}">
+                        {{ call.quality_score }}/100
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="call-meta">
+                    {% if call.client_phone %}<span>📱 {{ call.client_phone }}</span>{% endif %}
+                    <span>⏰ {{ (call.duration_seconds or 0) // 60 }} мин {{ (call.duration_seconds or 0) % 60 }} сек</span>
+                    <span>📊 {{ call.transcription_status }}</span>
+                </div>
+
+                {% if call.transcription_text %}
+                <div class="call-transcript">
+                    <strong>Транскрипт:</strong><br>
+                    <div id="transcript-{{ call.id }}" class="transcript-text" style="display: block; max-height: 150px; overflow: hidden;">
+                        {% if call.transcription_segments %}
+                            {# Structured transcription with speaker roles #}
+                            {% for segment in call.transcription_segments %}
+                            <div class="transcript-segment" style="margin-bottom: 12px; padding: 10px; border-radius: 8px; {% if segment.speaker == 'manager' %}background-color: #e3f2fd; border-left: 3px solid #2196F3;{% else %}background-color: #f3e5f5; border-left: 3px solid #9c27b0;{% endif %}">
+                                <div style="font-weight: bold; margin-bottom: 5px; color: {% if segment.speaker == 'manager' %}#1976D2{% else %}#7b1fa2{% endif %};">
+                                    {% if segment.speaker == 'manager' %}
+                                        🎧 Менеджер
+                                    {% else %}
+                                        💬 Клиент
+                                    {% endif %}
+                                </div>
+                                <div style="line-height: 1.6;">{{ segment.text }}</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            {# Plain text transcription (legacy format) #}
+                            <div style="white-space: pre-wrap;">{{ call.transcription_text }}</div>
+                        {% endif %}
+                    </div>
+                    <button class="expand-btn" onclick="toggleTranscript('{{ call.id }}')">Показать полностью</button>
+                </div>
+                {% endif %}
+
+                {% if call.analysis_result %}
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                    <strong>Анализ звонка:</strong> {{ call.analysis_result.summary }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleTranscript(callId) {
+    const el = document.getElementById('transcript-' + callId);
+    const btn = el.nextElementSibling;
+    if (el.style.maxHeight === '150px') {
+        el.style.maxHeight = 'none';
+        btn.textContent = 'Свернуть';
+    } else {
+        el.style.maxHeight = '150px';
+        btn.textContent = 'Показать полностью';
+    }
+}
+
+// Chat Analysis
+async function analyzeChatMessages() {
+    const btn = document.getElementById('chatAnalysisBtn');
+    const section = document.getElementById('chatAnalysisSection');
+    const content = document.getElementById('chatAnalysisContent');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Анализ...';
+    section.style.display = 'block';
+
+    try {
+        const response = await fetch('/admin/deals/{{ lead_id }}/chat-analysis');
+        const data = await response.json();
+
+        if (data.success && data.analysis) {
+            content.innerHTML = renderChatAnalysis(data);
+        } else {
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #718096;">
+                    <p>💬 ${data.error || 'Нет сообщений для анализа'}</p>
+                    <p style="font-size: 13px; margin-top: 10px;">
+                        Переписка загружается из AmoCRM (SMS, WhatsApp, email)
+                    </p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        content.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #e53e3e;">
+                <p>❌ Ошибка: ${error.message}</p>
+            </div>
+        `;
+    }
+
+    btn.disabled = false;
+    btn.textContent = '💬 Анализ переписки';
+}
+
+function renderChatAnalysis(data) {
+    const stats = data.stats || {};
+    const analysis = data.analysis || {};
+    const scores = analysis.scores || {};
+
+    const scoreLabels = {
+        response_speed: 'Скорость ответов',
+        communication_quality: 'Качество коммуникации',
+        needs_identification: 'Выявление потребностей',
+        objection_handling: 'Работа с возражениями',
+        deal_progress: 'Продвижение к сделке',
+        overall: 'Общая оценка'
+    };
+
+    const sentimentLabels = {
+        positive: 'Позитивный',
+        interested: 'Заинтересован',
+        neutral: 'Нейтральный',
+        hesitant: 'Сомневается',
+        negative: 'Негативный'
+    };
+
+    const readinessLabels = {
+        hot: '🔥 Горячий',
+        warm: '🌡️ Тёплый',
+        cold: '❄️ Холодный'
+    };
+
+    let html = `
+        <!-- Stats -->
+        <div class="chat-stats-grid">
+            <div class="chat-stat-card">
+                <div class="chat-stat-value">${stats.total_messages || 0}</div>
+                <div class="chat-stat-label">Сообщений</div>
+            </div>
+            <div class="chat-stat-card">
+                <div class="chat-stat-value">${stats.outgoing_count || 0}</div>
+                <div class="chat-stat-label">От менеджера</div>
+            </div>
+            <div class="chat-stat-card">
+                <div class="chat-stat-value">${stats.incoming_count || 0}</div>
+                <div class="chat-stat-label">От клиента</div>
+            </div>
+            <div class="chat-stat-card">
+                <div class="chat-stat-value">${stats.avg_response_time_minutes || '—'}</div>
+                <div class="chat-stat-label">Ответ (мин)</div>
+            </div>
+        </div>
+
+        <!-- Client Status -->
+        <div style="margin: 20px 0;">
+            <span class="chat-sentiment sentiment-${analysis.client_sentiment || 'neutral'}">
+                ${sentimentLabels[analysis.client_sentiment] || analysis.client_sentiment || 'Не определён'}
+            </span>
+            <span class="chat-readiness readiness-${analysis.client_readiness || 'cold'}">
+                ${readinessLabels[analysis.client_readiness] || analysis.client_readiness}
+            </span>
+        </div>
+
+        <!-- Scores -->
+        <h3 style="margin: 20px 0 10px;">📊 Оценки</h3>
+        <div class="chat-scores-grid">
+    `;
+
+    for (const [key, label] of Object.entries(scoreLabels)) {
+        const score = scores[key] || 0;
+        const level = score >= 70 ? 'high' : score >= 50 ? 'medium' : 'low';
+        html += `
+            <div class="chat-score-item">
+                <div class="chat-score-label">${label}: ${score}/100</div>
+                <div class="chat-score-bar">
+                    <div class="chat-score-fill ${level}" style="width: ${score}%"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    html += '</div>';
+
+    // Summary
+    if (analysis.summary) {
+        html += `
+            <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>📝 Резюме:</strong> ${analysis.summary}
+            </div>
+        `;
+    }
+
+    // Strengths & Weaknesses
+    if (analysis.strengths?.length) {
+        html += `<div class="list-pros"><strong>✅ Сильные стороны:</strong>`;
+        analysis.strengths.forEach(s => html += `<div class="list-item">${s}</div>`);
+        html += '</div>';
+    }
+
+    if (analysis.weaknesses?.length) {
+        html += `<div class="list-cons"><strong>⚠️ Слабые стороны:</strong>`;
+        analysis.weaknesses.forEach(w => html += `<div class="list-item">${w}</div>`);
+        html += '</div>';
+    }
+
+    // Recommendations
+    if (analysis.recommendations?.length) {
+        html += `<div style="margin-top: 15px;"><strong>💡 Рекомендации:</strong><ul style="margin: 10px 0 0 20px;">`;
+        analysis.recommendations.forEach(r => html += `<li style="margin: 5px 0;">${r}</li>`);
+        html += '</ul></div>';
+    }
+
+    // Next Best Action
+    if (analysis.next_best_action) {
+        html += `
+            <div class="next-action-box">
+                <strong>🎯 Следующее действие</strong>
+                <p>${analysis.next_best_action}</p>
+            </div>
+        `;
+    }
+
+    return html;
+}
+
+// Sentiment Dynamics Analysis
+async function analyzeSentimentDynamics() {
+    const btn = document.getElementById('sentimentBtn');
+    const section = document.getElementById('sentimentSection');
+    const content = document.getElementById('sentimentContent');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Анализ...';
+    section.style.display = 'block';
+
+    try {
+        const response = await fetch('/admin/deals/{{ lead_id }}/sentiment-summary');
+        const data = await response.json();
+
+        if (data.success) {
+            content.innerHTML = renderSentimentDynamics(data);
+        } else {
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #718096;">
+                    <p>🎭 ${data.error || 'Нет данных для анализа'}</p>
+                    <p style="font-size: 13px; margin-top: 10px;">
+                        Необходимы транскрибированные звонки
+                    </p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        content.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #e53e3e;">
+                <p>❌ Ошибка: ${error.message}</p>
+            </div>
+        `;
+    }
+
+    btn.disabled = false;
+    btn.textContent = '🎭 Динамика эмоций';
+}
+
+function renderSentimentDynamics(data) {
+    const aggregate = data.aggregate || {};
+    const summaries = data.call_summaries || [];
+
+    const emotionEmojis = {
+        positive: '😊',
+        negative: '😞',
+        neutral: '😐',
+        interested: '🤔',
+        hesitant: '😕',
+        professional: '👔',
+        enthusiastic: '🤩'
+    };
+
+    const trendEmojis = {
+        improving: '📈',
+        declining: '📉',
+        stable: '➡️'
+    };
+
+    const trendLabels = {
+        improving: 'Улучшается',
+        declining: 'Ухудшается',
+        stable: 'Стабильно'
+    };
+
+    let html = `
+        <!-- Summary Cards -->
+        <div class="sentiment-summary">
+            <div class="sentiment-card rapport">
+                <div class="sentiment-emoji">🤝</div>
+                <div class="sentiment-value">${aggregate.avg_rapport_score || 50}/100</div>
+                <div class="sentiment-label">Эмоциональный контакт</div>
+            </div>
+            <div class="sentiment-card">
+                <div class="sentiment-emoji">${trendEmojis[aggregate.overall_trend] || '➡️'}</div>
+                <div class="sentiment-value">${trendLabels[aggregate.overall_trend] || 'Стабильно'}</div>
+                <div class="sentiment-label">Тренд настроения</div>
+            </div>
+            <div class="sentiment-card">
+                <div class="sentiment-emoji">${emotionEmojis[aggregate.latest_client_sentiment] || '😐'}</div>
+                <div class="sentiment-value">${aggregate.latest_client_sentiment || 'neutral'}</div>
+                <div class="sentiment-label">Последнее настроение</div>
+            </div>
+            <div class="sentiment-card">
+                <div class="sentiment-emoji">📞</div>
+                <div class="sentiment-value">${data.calls_analyzed || 0}</div>
+                <div class="sentiment-label">Звонков проанализировано</div>
+            </div>
+        </div>
+    `;
+
+    // Call-by-call timeline
+    if (summaries.length > 0) {
+        html += `<h3 style="margin: 25px 0 15px;">📊 Динамика по звонкам</h3>`;
+        html += `<div class="emotion-timeline">`;
+
+        summaries.forEach((call, index) => {
+            const emotion = call.client_sentiment || 'neutral';
+            const emoji = emotionEmojis[emotion] || '😐';
+            const trend = call.trend || 'stable';
+            const trendEmoji = trendEmojis[trend] || '➡️';
+            const rapport = call.rapport_score || 50;
+            const date = call.call_date ? new Date(call.call_date).toLocaleDateString('ru-RU') : 'Н/Д';
+
+            html += `
+                <div style="display: flex; align-items: center; gap: 15px; padding: 12px; background: #f7fafc; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="font-size: 24px;">${emoji}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #2d3748;">Звонок ${summaries.length - index}</div>
+                        <div style="font-size: 12px; color: #718096;">${date}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 14px;">${trendEmoji} ${trendLabels[trend] || ''}</div>
+                        <div style="font-size: 12px; color: #718096;">Контакт: ${rapport}%</div>
+                    </div>
+                </div>
+            `;
+
+            if (call.key_moment) {
+                html += `
+                    <div style="margin: -5px 0 15px 40px; padding: 10px; background: #fffaf0; border-radius: 8px; font-size: 13px;">
+                        💡 <em>${call.key_moment}</em>
+                    </div>
+                `;
+            }
+        });
+
+        html += `</div>`;
+    }
+
+    // Recommendations based on trend
+    html += `
+        <div style="margin-top: 25px; padding: 20px; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 12px;">
+            <h4 style="margin: 0 0 15px; color: #667eea;">💡 Рекомендации по эмоциональному контакту</h4>
+    `;
+
+    if (aggregate.overall_trend === 'declining') {
+        html += `
+            <div class="emotional-insight miss">
+                <span>⚠️</span>
+                <span>Настроение клиента ухудшается. Обратите внимание на возражения и сомнения.</span>
+            </div>
+            <div class="emotional-insight">
+                <span>💬</span>
+                <span>Попробуйте начать следующий звонок с вопроса о впечатлениях клиента.</span>
+            </div>
+        `;
+    } else if (aggregate.overall_trend === 'improving') {
+        html += `
+            <div class="emotional-insight win">
+                <span>✅</span>
+                <span>Отличная динамика! Клиент становится более расположен к сделке.</span>
+            </div>
+            <div class="emotional-insight">
+                <span>🎯</span>
+                <span>Самое время переходить к закрытию сделки.</span>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="emotional-insight">
+                <span>📊</span>
+                <span>Настроение стабильно. Попробуйте добавить позитивных эмоций в общение.</span>
+            </div>
+        `;
+    }
+
+    if (aggregate.avg_rapport_score < 50) {
+        html += `
+            <div class="emotional-insight miss">
+                <span>🤝</span>
+                <span>Эмоциональный контакт ниже нормы. Больше слушайте клиента и проявляйте эмпатию.</span>
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+
+    return html;
+}
+
+// Task suggestion and creation
+let suggestedTasks = [];
+
+async function suggestTasks() {
+    const btn = document.getElementById('tasksBtn');
+    const section = document.getElementById('tasksSection');
+    const content = document.getElementById('tasksContent');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Загрузка...';
+    section.style.display = 'block';
+
+    try {
+        const response = await fetch('/admin/deals/{{ lead_id }}/suggest-tasks');
+        const data = await response.json();
+
+        if (data.success && data.tasks.length > 0) {
+            suggestedTasks = data.tasks;
+            content.innerHTML = renderSuggestedTasks(data.tasks);
+        } else {
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #718096;">
+                    <p>📋 ${data.error || 'Нет рекомендаций для создания задач'}</p>
+                    <p style="font-size: 13px; margin-top: 10px;">
+                        Для формирования задач нужен проанализированный звонок с рекомендациями
+                    </p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        content.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #e53e3e;">
+                <p>❌ Ошибка: ${error.message}</p>
+            </div>
+        `;
+    }
+
+    btn.disabled = false;
+    btn.textContent = '📋 Создать задачи';
+}
+
+function renderSuggestedTasks(tasks) {
+    let html = `
+        <p style="color: #718096; margin-bottom: 20px;">
+            AI проанализировал рекомендации и предлагает создать следующие задачи в AmoCRM:
+        </p>
+    `;
+
+    tasks.forEach((task, index) => {
+        html += `
+            <div class="task-card selected" id="task-card-${index}">
+                <div class="task-header">
+                    <span class="task-emoji">${task.emoji}</span>
+                    <span class="task-title">${task.title}</span>
+                    <span class="task-urgency urgency-${task.urgency}">${task.urgency_label}</span>
+                    <input type="checkbox" class="task-checkbox" id="task-${index}" checked onchange="toggleTask(${index})">
+                </div>
+                <div class="task-description">${task.description}</div>
+                <div class="task-meta">
+                    <span class="task-reason">💡 ${task.reason}</span>
+                    <span>⏰ Дедлайн: ${task.deadline_days === 0 ? 'Сегодня' : task.deadline_days + ' дн.'}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    html += `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <span style="color: #718096;">Выбрано задач: <strong id="selectedCount">${tasks.length}</strong></span>
+            <button class="create-tasks-btn" onclick="createSelectedTasks()" id="createTasksBtn">
+                ✅ Создать в AmoCRM
+            </button>
+        </div>
+        <div id="taskResult"></div>
+    `;
+
+    return html;
+}
+
+function toggleTask(index) {
+    const card = document.getElementById(`task-card-${index}`);
+    const checkbox = document.getElementById(`task-${index}`);
+
+    if (checkbox.checked) {
+        card.classList.add('selected');
+    } else {
+        card.classList.remove('selected');
+    }
+
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.task-checkbox');
+    const selected = Array.from(checkboxes).filter(cb => cb.checked).length;
+    document.getElementById('selectedCount').textContent = selected;
+    document.getElementById('createTasksBtn').disabled = selected === 0;
+}
+
+async function createSelectedTasks() {
+    const btn = document.getElementById('createTasksBtn');
+    const resultDiv = document.getElementById('taskResult');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Создание...';
+
+    try {
+        const response = await fetch('/admin/deals/{{ lead_id }}/create-tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="task-success">
+                    <strong>✅ Задачи созданы!</strong><br>
+                    Создано: ${data.created_count} задач в AmoCRM
+                    ${data.failed_count > 0 ? `<br>⚠️ Не удалось создать: ${data.failed_count}` : ''}
+                </div>
+            `;
+
+            // Обновить кнопку
+            btn.textContent = '✅ Создано!';
+            btn.style.background = '#48bb78';
+
+        } else {
+            resultDiv.innerHTML = `
+                <div class="task-error">
+                    <strong>❌ Ошибка при создании</strong><br>
+                    ${data.tasks?.map(t => t.error).filter(e => e).join('<br>') || 'Неизвестная ошибка'}
+                </div>
+            `;
+            btn.textContent = '🔄 Попробовать снова';
+            btn.disabled = false;
+        }
+
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="task-error">
+                <strong>❌ Ошибка: ${error.message}</strong>
+            </div>
+        `;
+        btn.textContent = '🔄 Попробовать снова';
+        btn.disabled = false;
+    }
+}
+
+// Commitments tracking
+async function loadCommitments() {
+    const btn = document.getElementById('commitmentsBtn');
+    const section = document.getElementById('commitmentsSection');
+    const content = document.getElementById('commitmentsContent');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Загрузка...';
+    section.style.display = 'block';
+
+    try {
+        const response = await fetch('/admin/deals/{{ lead_id }}/commitments');
+        const data = await response.json();
+
+        if (data.success) {
+            content.innerHTML = renderCommitments(data);
+        } else {
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #718096;">
+                    <p>🤝 ${data.error || 'Не удалось загрузить обязательства'}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        content.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #e53e3e;">
+                <p>❌ Ошибка: ${error.message}</p>
+            </div>
+        `;
+    }
+
+    btn.disabled = false;
+    btn.textContent = '🤝 Обязательства';
+}
+
+function renderCommitments(data) {
+    const typeLabels = {
+        client_call_back: '📞 Перезвонит',
+        client_decide: '🤔 Примет решение',
+        client_send_docs: '📄 Отправит документы',
+        client_discuss: '👥 Обсудит',
+        client_meeting: '🤝 Придет на встречу',
+        manager_call_back: '📞 Перезвонит',
+        manager_send_info: '📧 Отправит информацию',
+        manager_prepare: '📋 Подготовит предложение',
+        manager_meeting: '🤝 Назначит встречу',
+        payment: '💰 Оплата'
+    };
+
+    const statusLabels = {
+        pending: 'Ожидает',
+        overdue: 'Просрочено',
+        completed: 'Выполнено'
+    };
+
+    let html = `
+        <!-- Summary -->
+        <div class="commitments-summary">
+            <div class="commitment-stat health">
+                <div class="commitment-stat-value" style="color: ${data.health_score >= 70 ? '#38a169' : data.health_score >= 40 ? '#dd6b20' : '#e53e3e'}">
+                    ${data.health_score}%
+                </div>
+                <div class="commitment-stat-label">Здоровье обязательств</div>
+            </div>
+            <div class="commitment-stat">
+                <div class="commitment-stat-value">${data.total_commitments}</div>
+                <div class="commitment-stat-label">Всего</div>
+            </div>
+            <div class="commitment-stat">
+                <div class="commitment-stat-value pending">${data.pending_count}</div>
+                <div class="commitment-stat-label">Ожидают</div>
+            </div>
+            <div class="commitment-stat">
+                <div class="commitment-stat-value overdue">${data.overdue_count}</div>
+                <div class="commitment-stat-label">Просрочено</div>
+            </div>
+        </div>
+    `;
+
+    if (data.next_deadline) {
+        const deadline = new Date(data.next_deadline);
+        html += `
+            <div style="background: #fffaf0; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dd6b20;">
+                ⏰ Ближайший дедлайн: <strong>${deadline.toLocaleDateString('ru-RU')}</strong>
+            </div>
+        `;
+    }
+
+    // Client commitments
+    if (data.client_commitments.length > 0) {
+        html += `
+            <div class="commitment-group">
+                <div class="commitment-group-header">
+                    <span>👤</span>
+                    <span>Обязательства клиента</span>
+                    <span style="font-size: 14px; color: #718096; font-weight: normal;">(${data.client_commitments.length})</span>
+                </div>
+        `;
+
+        data.client_commitments.forEach(c => {
+            html += renderCommitmentItem(c, typeLabels, statusLabels);
+        });
+
+        html += `</div>`;
+    }
+
+    // Manager commitments
+    if (data.manager_commitments.length > 0) {
+        html += `
+            <div class="commitment-group">
+                <div class="commitment-group-header">
+                    <span>🎧</span>
+                    <span>Обязательства менеджера</span>
+                    <span style="font-size: 14px; color: #718096; font-weight: normal;">(${data.manager_commitments.length})</span>
+                </div>
+        `;
+
+        data.manager_commitments.forEach(c => {
+            html += renderCommitmentItem(c, typeLabels, statusLabels);
+        });
+
+        html += `</div>`;
+    }
+
+    if (data.total_commitments === 0) {
+        html += `
+            <div style="text-align: center; padding: 40px; color: #718096;">
+                <p>🤝 Обязательства не найдены</p>
+                <p style="font-size: 13px; margin-top: 10px;">
+                    AI не обнаружил явных обещаний в последних звонках
+                </p>
+            </div>
+        `;
+    }
+
+    return html;
+}
+
+function renderCommitmentItem(c, typeLabels, statusLabels) {
+    const deadline = c.deadline ? new Date(c.deadline).toLocaleDateString('ru-RU') : c.deadline_text || 'Не указан';
+
+    return `
+        <div class="commitment-item ${c.status}">
+            <div class="commitment-header">
+                <span class="commitment-type">${typeLabels[c.commitment_type] || c.commitment_type}</span>
+                <span class="commitment-status status-${c.status}">${statusLabels[c.status] || c.status}</span>
+            </div>
+            <div class="commitment-description">${c.description}</div>
+            ${c.quote ? `<div class="commitment-quote">"${c.quote}"</div>` : ''}
+            <div class="commitment-meta">
+                <span>⏰ Срок: ${deadline}</span>
+            </div>
+        </div>
+    `;
+}
+</script>
+{% endblock %}

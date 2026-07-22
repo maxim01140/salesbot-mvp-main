@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки - SalesBot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .header h1 { font-size: 24px; color: #1a202c; margin-bottom: 8px; }
+        .header p { color: #718096; }
+        .card { background: white; padding: 24px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .card-title { font-size: 18px; font-weight: 600; color: #2d3748; margin-bottom: 16px; display: flex; align-items: center; }
+        .card-title::before { content: ''; display: inline-block; width: 4px; height: 20px; background: #4299e1; border-radius: 2px; margin-right: 12px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 500; color: #4a5568; margin-bottom: 8px; font-size: 14px; }
+        input[type="number"], input[type="text"], input[type="time"] { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
+        input:focus { outline: none; border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,0.1); }
+        .checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+        .checkbox-item { display: flex; align-items: center; padding: 12px; border-radius: 8px; transition: background 0.2s; cursor: pointer; }
+        .checkbox-item:hover { background: #f7fafc; }
+        .checkbox-item input[type="checkbox"] { width: 20px; height: 20px; margin-right: 12px; cursor: pointer; accent-color: #4299e1; }
+        .checkbox-item label { cursor: pointer; flex: 1; font-size: 14px; color: #2d3748; }
+        .btn { padding: 12px 24px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; font-size: 14px; }
+        .btn-primary { background: #4299e1; color: white; }
+        .btn-primary:hover { background: #3182ce; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,153,225,0.3); }
+        .btn-secondary { background: #edf2f7; color: #2d3748; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .actions { display: flex; gap: 12px; margin-top: 24px; }
+        .success-message { background: #c6f6d5; color: #22543d; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .badge-success { background: #c6f6d5; color: #22543d; }
+        .badge-warning { background: #feebc8; color: #7c2d12; }
+        .nav { background: white; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px; }
+        .nav a { color: #4299e1; text-decoration: none; margin-right: 20px; font-weight: 500; }
+        .nav a:hover { color: #3182ce; }
+
+        /* AI Model Cards */
+        .model-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .model-card:hover { border-color: #4299e1; background: #f7fafc; }
+        .model-card.selected { border-color: #4299e1; background: #ebf8ff; }
+        .model-card.premium { border-color: #d69e2e; }
+        .model-card.premium.selected { background: #fefcbf; }
+        .model-name { font-weight: 600; font-size: 16px; color: #2d3748; margin-bottom: 4px; }
+        .model-desc { font-size: 13px; color: #718096; margin-bottom: 8px; }
+        .model-cost { font-size: 12px; color: #a0aec0; }
+        .model-badge {
+            position: absolute;
+            top: -8px;
+            right: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-recommended { background: #48bb78; color: white; }
+        .badge-premium { background: #d69e2e; color: white; }
+        .badge-selected { background: #4299e1; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/admin/">← Назад к панели</a>
+        </div>
+
+        <div class="header">
+            <h1>⚙️ Настройки SalesBot</h1>
+            <p>Управление мониторингом менеджеров и настройка алертов</p>
+        </div>
+
+        <div id="successMessage" class="success-message">✓ Настройки успешно сохранены!</div>
+
+        <!-- AI Model Settings -->
+        <div class="card">
+            <div class="card-title">🤖 Настройки AI-модели</div>
+            <p style="color: #718096; margin-bottom: 16px; font-size: 14px;">Выберите модель OpenAI для анализа звонков и коучинга</p>
+
+            <div class="model-grid" id="modelGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                <!-- Models loaded dynamically -->
+                <div style="padding: 20px; text-align: center; color: #718096;">Загрузка моделей...</div>
+            </div>
+
+            <div style="margin-top: 24px; padding: 16px; background: #f7fafc; border-radius: 8px;">
+                <div class="card-title" style="font-size: 16px;">💰 Статус бюджета API</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;">
+                    <div>
+                        <div style="font-size: 12px; color: #718096; margin-bottom: 4px;">Сегодня</div>
+                        <div id="dailyBudget" style="font-size: 18px; font-weight: 600; color: #2d3748;">$0.00 / $15.00</div>
+                        <div class="progress-bar" style="margin-top: 8px; height: 6px; background: #e2e8f0; border-radius: 3px;">
+                            <div id="dailyProgress" style="height: 100%; background: #48bb78; border-radius: 3px; width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #718096; margin-bottom: 4px;">Этот месяц</div>
+                        <div id="monthlyBudget" style="font-size: 18px; font-weight: 600; color: #2d3748;">$0.00 / $150.00</div>
+                        <div class="progress-bar" style="margin-top: 8px; height: 6px; background: #e2e8f0; border-radius: 3px;">
+                            <div id="monthlyProgress" style="height: 100%; background: #4299e1; border-radius: 3px; width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #718096; margin-bottom: 4px;">Всего запросов</div>
+                        <div id="totalRequests" style="font-size: 18px; font-weight: 600; color: #2d3748;">0</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                        <label style="font-size: 12px;">Дневной лимит ($)</label>
+                        <input type="number" id="dailyLimit" value="15" min="1" max="1000" step="1" style="padding: 8px 12px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                        <label style="font-size: 12px;">Месячный лимит ($)</label>
+                        <input type="number" id="monthlyLimit" value="150" min="10" max="10000" step="10" style="padding: 8px 12px;">
+                    </div>
+                    <div style="display: flex; align-items: flex-end; gap: 8px;">
+                        <button class="btn btn-primary" onclick="saveBudgetLimits()" style="padding: 8px 16px;">Сохранить лимиты</button>
+                        <button class="btn btn-secondary" onclick="resetDailyBudget()" style="padding: 8px 16px;">Сбросить день</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Выбор менеджеров для мониторинга -->
+        <div class="card">
+            <div class="card-title">Мониторинг менеджеров</div>
+            <p style="color: #718096; margin-bottom: 16px; font-size: 14px;">Выберите менеджеров, чьи звонки будут отслеживаться системой</p>
+
+            <div class="checkbox-group" id="managersCheckboxes">
+                {% for manager in managers %}
+                <div class="checkbox-item">
+                    <input type="checkbox" id="manager-{{ manager.id }}" value="{{ manager.id }}" {% if manager.is_monitored %}checked{% endif %}>
+                    <label for="manager-{{ manager.id }}">
+                        {{ manager.name }}
+                        <span class="badge {% if manager.is_monitored %}badge-success{% else %}badge-warning{% endif %}">
+                            {% if manager.is_monitored %}Активен{% else %}Отключен{% endif %}
+                        </span>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" onclick="saveManagerSettings()">Сохранить выбор менеджеров</button>
+            </div>
+        </div>
+
+        <!-- Настройки алертов -->
+        <div class="card">
+            <div class="card-title">Параметры алертов</div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div class="form-group">
+                    <label>Минимальный балл качества (0-100)</label>
+                    <input type="number" id="minQualityScore" value="{{ alert_settings.min_quality_score }}" min="0" max="100">
+                    <small style="color: #718096; font-size: 12px;">Алерт если оценка ниже</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Мин. длительность звонка (сек)</label>
+                    <input type="number" id="minCallDuration" value="{{ alert_settings.min_call_duration }}" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Макс. длительность звонка (сек)</label>
+                    <input type="number" id="maxCallDuration" value="{{ alert_settings.max_call_duration }}" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Время ответа клиенту (часы)</label>
+                    <input type="number" id="maxResponseTime" value="{{ alert_settings.max_response_time_hours }}" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Начало рабочего дня</label>
+                    <input type="time" id="workingHoursStart" value="{{ alert_settings.working_hours_start }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Конец рабочего дня</label>
+                    <input type="time" id="workingHoursEnd" value="{{ alert_settings.working_hours_end }}">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Ключевые слова для отслеживания (через запятую)</label>
+                <input type="text" id="alertKeywords" value="{{ (alert_settings.alert_keywords or []) | join(', ') }}" placeholder="возврат, жалоба, руководитель">
+            </div>
+
+            <div class="checkbox-group" style="margin-top: 20px;">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notifyLowQuality" {% if alert_settings.notify_on_low_quality %}checked{% endif %}>
+                    <label for="notifyLowQuality">Уведомления о низком качестве</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notifyMissedCommitment" {% if alert_settings.notify_on_missed_commitment %}checked{% endif %}>
+                    <label for="notifyMissedCommitment">Уведомления о невыполненных обязательствах</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notifyKeywords" {% if alert_settings.notify_on_keywords %}checked{% endif %}>
+                    <label for="notifyKeywords">Уведомления при упоминании ключевых слов</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="sendDailyDigest" {% if alert_settings.send_daily_digest %}checked{% endif %}>
+                    <label for="sendDailyDigest">Ежедневная сводка</label>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" onclick="saveAlertSettings()">Сохранить настройки алертов</button>
+                <button class="btn btn-secondary" onclick="window.location.reload()">Отменить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function saveManagerSettings() {
+            const checkboxes = document.querySelectorAll('#managersCheckboxes input[type="checkbox"]:checked');
+            const managerIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+            try {
+                const response = await fetch('/admin/settings/managers/monitoring', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ manager_ids: managerIds })
+                });
+
+                if (response.ok) {
+                    showSuccess();
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            } catch (error) {
+                alert('Ошибка при сохранении: ' + error.message);
+            }
+        }
+
+        async function saveAlertSettings() {
+            const keywords = document.getElementById('alertKeywords').value
+                .split(',')
+                .map(k => k.trim())
+                .filter(k => k);
+
+            const data = {
+                min_quality_score: parseInt(document.getElementById('minQualityScore').value),
+                min_call_duration: parseInt(document.getElementById('minCallDuration').value),
+                max_call_duration: parseInt(document.getElementById('maxCallDuration').value),
+                max_response_time_hours: parseInt(document.getElementById('maxResponseTime').value),
+                working_hours_start: document.getElementById('workingHoursStart').value,
+                working_hours_end: document.getElementById('workingHoursEnd').value,
+                alert_keywords: keywords,
+                notify_on_low_quality: document.getElementById('notifyLowQuality').checked,
+                notify_on_missed_commitment: document.getElementById('notifyMissedCommitment').checked,
+                notify_on_keywords: document.getElementById('notifyKeywords').checked,
+                send_daily_digest: document.getElementById('sendDailyDigest').checked
+            };
+
+            try {
+                const response = await fetch('/admin/settings/alerts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showSuccess();
+                }
+            } catch (error) {
+                alert('Ошибка при сохранении: ' + error.message);
+            }
+        }
+
+        function showSuccess() {
+            const msg = document.getElementById('successMessage');
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }
+
+        // ============================================
+        // AI Model Management
+        // ============================================
+
+        let currentModel = 'gpt-4o';
+
+        async function loadAISettings() {
+            try {
+                // Load models
+                const modelsResponse = await fetch('/admin/settings/ai/models');
+                const modelsData = await modelsResponse.json();
+
+                currentModel = modelsData.current_model;
+                renderModelCards(modelsData.models);
+
+                // Load budget
+                const budgetResponse = await fetch('/admin/settings/ai/budget');
+                const budgetData = await budgetResponse.json();
+
+                updateBudgetDisplay(budgetData);
+
+            } catch (error) {
+                console.error('Error loading AI settings:', error);
+                document.getElementById('modelGrid').innerHTML =
+                    '<div style="color: #e53e3e; padding: 20px;">Ошибка загрузки настроек</div>';
+            }
+        }
+
+        function renderModelCards(models) {
+            const grid = document.getElementById('modelGrid');
+            grid.innerHTML = models.map(model => `
+                <div class="model-card ${model.selected ? 'selected' : ''} ${model.premium ? 'premium' : ''}"
+                     onclick="selectModel('${model.id}')" id="model-${model.id}">
+                    ${model.recommended ? '<span class="model-badge badge-recommended">Рекомендуется</span>' : ''}
+                    ${model.premium ? '<span class="model-badge badge-premium">Premium</span>' : ''}
+                    ${model.selected ? '<span class="model-badge badge-selected">Выбрано</span>' : ''}
+                    <div class="model-name">${model.name}</div>
+                    <div class="model-desc">${model.description}</div>
+                    <div class="model-cost">
+                        💰 Input: $${model.cost_input}/1K • Output: $${model.cost_output}/1K
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectModel(modelId) {
+            if (modelId === currentModel) return;
+
+            // Confirm if selecting premium model
+            const isPremium = modelId === 'gpt-5.1' || modelId === 'o1';
+            if (isPremium) {
+                const confirm = window.confirm(
+                    `⚠️ ${modelId} - премиум модель с высокой стоимостью.\n\nПродолжить?`
+                );
+                if (!confirm) return;
+            }
+
+            try {
+                const response = await fetch('/admin/settings/ai/model', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: modelId })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    currentModel = modelId;
+                    showSuccess();
+
+                    // Update UI
+                    document.querySelectorAll('.model-card').forEach(card => {
+                        card.classList.remove('selected');
+                        card.querySelector('.badge-selected')?.remove();
+                    });
+
+                    const selectedCard = document.getElementById(`model-${modelId}`);
+                    selectedCard.classList.add('selected');
+
+                    const badge = document.createElement('span');
+                    badge.className = 'model-badge badge-selected';
+                    badge.textContent = 'Выбрано';
+                    selectedCard.appendChild(badge);
+
+                } else {
+                    alert('Ошибка: ' + (result.detail || 'Не удалось сменить модель'));
+                }
+
+            } catch (error) {
+                alert('Ошибка при смене модели: ' + error.message);
+            }
+        }
+
+        function updateBudgetDisplay(data) {
+            // Daily
+            document.getElementById('dailyBudget').textContent =
+                `$${data.daily.spent.toFixed(2)} / $${data.daily.limit.toFixed(2)}`;
+            document.getElementById('dailyProgress').style.width =
+                `${Math.min(100, data.daily.percent_used)}%`;
+            document.getElementById('dailyProgress').style.background =
+                data.daily.percent_used > 80 ? '#e53e3e' : '#48bb78';
+
+            // Monthly
+            document.getElementById('monthlyBudget').textContent =
+                `$${data.monthly.spent.toFixed(2)} / $${data.monthly.limit.toFixed(2)}`;
+            document.getElementById('monthlyProgress').style.width =
+                `${Math.min(100, data.monthly.percent_used)}%`;
+
+            // Total
+            document.getElementById('totalRequests').textContent = data.total_requests;
+
+            // Update input values
+            document.getElementById('dailyLimit').value = data.limits.daily;
+            document.getElementById('monthlyLimit').value = data.limits.monthly;
+        }
+
+        async function saveBudgetLimits() {
+            const dailyLimit = parseFloat(document.getElementById('dailyLimit').value);
+            const monthlyLimit = parseFloat(document.getElementById('monthlyLimit').value);
+
+            try {
+                const response = await fetch('/admin/settings/ai/budget', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        daily_limit: dailyLimit,
+                        monthly_limit: monthlyLimit
+                    })
+                });
+
+                if (response.ok) {
+                    showSuccess();
+                    loadAISettings(); // Refresh display
+                } else {
+                    const result = await response.json();
+                    alert('Ошибка: ' + (result.detail || 'Не удалось сохранить'));
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        async function resetDailyBudget() {
+            if (!confirm('Сбросить счётчик расходов за сегодня?')) return;
+
+            try {
+                const response = await fetch('/admin/settings/ai/budget/reset', { method: 'POST' });
+                if (response.ok) {
+                    showSuccess();
+                    loadAISettings();
+                }
+            } catch (error) {
+                alert('Ошибка: ' + error.message);
+            }
+        }
+
+        // Load AI settings on page load
+        document.addEventListener('DOMContentLoaded', loadAISettings);
+    </script>
+</body>
+</html>
